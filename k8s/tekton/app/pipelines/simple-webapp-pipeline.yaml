@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: simple-webapp-pipeline
+spec:
+  resources:
+  - name: git-app-repo
+    type: git
+  - name: container-registry
+    type: image
+  tasks:
+    - name: build
+      taskRef:
+        name: build-docker-image
+      params:
+        - name: pathToDockerFile
+          value: Dockerfile
+        - name: pathToContext
+          value: /workspace/git-app-repo
+      resources:
+        inputs:
+          - name: git-app-repo
+            resource: git-app-repo
+        outputs:
+          - name: container-registry
+            resource: container-registry
