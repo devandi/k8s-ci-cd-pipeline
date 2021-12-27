@@ -1,0 +1,9 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: container-registry
+spec:
+  type: image
+  params:
+    - name: url
+      value: registry.digitalocean.com/do-challenge-registry

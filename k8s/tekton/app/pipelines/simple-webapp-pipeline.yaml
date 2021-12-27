@@ -24,3 +24,11 @@ spec:
         outputs:
           - name: container-registry
             resource: container-registry
+    - name: sync-application
+      taskRef:
+        name: argocd-task-sync-and-wait
+      runAfter:
+        - build
+      params:
+        - name: flags
+          value: --insecure

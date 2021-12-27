@@ -1,0 +1,86 @@
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: build-trigger-template
+spec:
+  params:
+  - name: git-app-repo-url
+  - name: git-app-repo-name
+  - name: git-app-repo-revision
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: simple-webapp-pipeline-run-
+      namespace: ci-cd-pipeline
+      labels:
+        pipeline: tekton
+        deploy: argocd
+    spec:
+      serviceAccountName: pipeline-sa
+      pipelineRef:
+        name: simple-webapp-pipeline
+      resources:
+      - name: git-app-repo
+        resourceSpec:
+          params:
+          - name: url
+            value: $(tt.params.git-app-repo-url)
+          - name: revision
+            value: $(tt.params.git-app-repo-revision)
+          - name: git-app-repo-name
+            value: $(tt.params.git-app-repo-name)
+          type: git
+      - name: container-registry
+        resourceSpec:
+          type: image
+          params:
+          - name: url
+            value: registry.digitalocean.com/do-challenge-registry
+
+--- 
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: build-git-tb
+spec:
+  params:
+  - name: git-app-repo-url
+    # Replace with path to the JSON resource you want, based on the Git provider that you're using (e.g. for AzureDevOps: resource.repository.remoteUrl)
+    value: $(body.repository.clone_url)
+  - name: git-app-repo-revision
+    value: master
+
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: build-el
+  labels:
+    eventlistener: build-el
+spec:
+  serviceAccountName: tekton-triggers-admin
+  triggers:
+  - bindings:
+    - ref: build-git-tb
+    template:
+      ref: build-trigger-template
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: build-el-ext-service
+spec:
+  type: NodePort
+  selector:
+    eventlistener: build-el
+  ports:
+      # By default and for convenience, the `targetPort` is set to the same value as the `port` field.
+    - port: 8080
+      targetPort: 8080
+      # Optional field
+      # By default and for convenience, the Kubernetes control plane will allocate a port from a range (default: 30000-32767)
+      nodePort: 30007

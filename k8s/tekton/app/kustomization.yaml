@@ -7,6 +7,10 @@ resources:
   - resources/namespace.yaml
   - resources/git-app-repo.yaml
   - resources/pipeline-sa.yaml
+  - resources/trigger-admin-sa.yaml
   - resources/image-registry.yaml
+  - resources/argocd-cm.yaml
   - tasks/build-task.yaml
+  - tasks/argocd-task.yaml
   - pipelines/simple-webapp-pipeline.yaml
+  - triggers/trigger.yaml
