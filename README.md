@@ -17,8 +17,11 @@ Kaniko is used to build the container image.
 ArgoCD is used for deploying the app in a kubernetes cluster.
 Kustomize was used for handling the yaml files
 
-### Terraform
-With Terraform the infrastructure was created at Digital Ocean. A managed kubernetes cluster and a container registry was created. 
+### Terraform - Creating the infrastructure
+With Terraform the infrastructure was created at Digital Ocean. A managed kubernetes cluster and a container registry was created. The related files can be found in the terraform folder. The provider.tf file contains the definition of die Digital Ocean Provider for Terrform. There the provider is definied, the default region and the token-variable. 
+In the file cluster.tf the cluster is definied. A kubernetes cluster is definied with an autoscaling node-pool. As minimum one node is defined and as maximum two nodes. One should be aware that a cluster with one node is not really "failsafe". If one node is going down then the applications running in the cluster are down too. 
+Furthermore the definition of the image-registry is in the cluster.tf file too.
+
 
 ### Tekton
 The project was started with creating the Tekton pipeline. The pipeline has just a few steps. It gets triggered by a github webhook after a push to the repository. In the first step the app is built and a container-image is created with Kaniko. This image is uploaded to a container registry. 
