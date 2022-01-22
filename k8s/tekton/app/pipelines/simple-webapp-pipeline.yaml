@@ -3,6 +3,9 @@ kind: Pipeline
 metadata:
   name: simple-webapp-pipeline
 spec:
+  params:
+  - name: image-tag
+    type: string
   resources:
   - name: git-app-repo
     type: git
@@ -17,6 +20,8 @@ spec:
           value: Dockerfile
         - name: pathToContext
           value: /workspace/git-app-repo
+        - name: image-tag
+          value: "$(params.image-tag)"
       resources:
         inputs:
           - name: git-app-repo
